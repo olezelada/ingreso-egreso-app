@@ -1,29 +1,45 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Router} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
 
 import Swal from 'sweetalert2'
+import { Store } from '@ngrx/store';
+import { AppState } from '../../app.reducer';
+import * as ui from '../../share/ui.actions';
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styles: []
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
   public loginForm!: FormGroup;
+  public loading: boolean = false;
+  public uiSubscription!: Subscription;
 
   constructor(private router: Router,
               private fb: FormBuilder,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private store: Store<AppState>) {
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
-    })
+    });
+
+    this.uiSubscription = this.store.select('ui').subscribe( ui => {
+      this.loading = ui.isLoading;
+      console.log('cargando subs')
+    });
+  }
+
+  public ngOnDestroy(): void {
+    this.uiSubscription.unsubscribe();
   }
 
   public loginUsuario() {
@@ -31,12 +47,14 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    Swal.fire({
-      title: 'Espere por favor',
-      didOpen: () => {
-        Swal.showLoading()
-      }
-    });
+    this.store.dispatch(ui.isLoading());
+
+    //Swal.fire({
+    //  title: 'Espere por favor',
+    //  didOpen: () => {
+    //    Swal.showLoading()
+    //  }
+    //});
 
 
     const {email, password} = this.loginForm.value;
@@ -44,9 +62,11 @@ export class LoginComponent implements OnInit {
     this.authService.loginUsuario(email, password)
       .then(credenciales => {
         console.log(credenciales);
-        Swal.close();
+        this.store.dispatch( ui.stopLoading());
+        //Swal.close();
         this.router.navigate(['/'])
       }).catch(err => {
+        this.store.dispatch( ui.stopLoading());
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -57,28 +77,3 @@ export class LoginComponent implements OnInit {
   }
 
 }
-
-
-/*
-let timerInterval
-Swal.fire({
-  title: 'Auto close alert!',
-  html: 'I will close in <b></b> milliseconds.',
-  timer: 2000,
-  timerProgressBar: true,
-  didOpen: () => {
-    Swal.showLoading()
-    const b = Swal.getHtmlContainer().querySelector('b')
-    timerInterval = setInterval(() => {
-      b.textContent = Swal.getTimerLeft()
-    }, 100)
-  },
-  willClose: () => {
-    clearInterval(timerInterval)
-  }
-}).then((result) => {
-  /!* Read more about handling dismissals below *!/
-  if (result.dismiss === Swal.DismissReason.timer) {
-    console.log('I was closed by the timer')
-  }
-})*/
