@@ -34,7 +34,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.uiSubscription = this.store.select('ui').subscribe( ui => {
       this.loading = ui.isLoading;
-      console.log('cargando subs')
     });
   }
 
@@ -49,21 +48,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(ui.isLoading());
 
-    //Swal.fire({
-    //  title: 'Espere por favor',
-    //  didOpen: () => {
-    //    Swal.showLoading()
-    //  }
-    //});
-
-
     const {email, password} = this.loginForm.value;
 
     this.authService.loginUsuario(email, password)
       .then(credenciales => {
-        console.log(credenciales);
         this.store.dispatch( ui.stopLoading());
-        //Swal.close();
         this.router.navigate(['/'])
       }).catch(err => {
         this.store.dispatch( ui.stopLoading());
@@ -75,5 +64,4 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
 
   }
-
 }

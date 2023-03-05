@@ -31,13 +31,11 @@ export class AuthService {
       if(fbUser){
         this.userSubscription = this.firestore.doc(`${ fbUser.uid }/usuario`).valueChanges()
           .subscribe( (firestoreUser: any) => {
-            console.log(firestoreUser);
             const user = Usuario.fromFirebase(firestoreUser);
             this._user = user;
             this.store.dispatch(authActions.setUser({ user }));
           });
       }else {
-          console.log('llamar al unset del user');
           this._user = null;
           this.userSubscription.unsubscribe();
         this.store.dispatch(authActions.unSetUser());
@@ -58,7 +56,6 @@ export class AuthService {
   }
 
   public loginUsuario(email: string, password: string) {
-    console.log({email, password});
     return this.auth.signInWithEmailAndPassword(email, password);
   }
 
