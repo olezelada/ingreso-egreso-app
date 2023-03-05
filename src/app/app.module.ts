@@ -26,12 +26,16 @@ import {appReducers} from './app.reducer'
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+//chart js
+
+import { ChartsModule } from 'ng2-charts'
+
 
 import {environment} from "../environments/environment";
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth,getAuth } from '@angular/fire/auth';
 import { provideFirestore,getFirestore } from '@angular/fire/firestore';
-
+import { OrdenIngresoPipe } from './pipes/orden-ingreso.pipe';
 
 
 @NgModule({
@@ -45,12 +49,14 @@ import { provideFirestore,getFirestore } from '@angular/fire/firestore';
     DetalleComponent,
     FooterComponent,
     NavbarComponent,
-    SidebarComponent
+    SidebarComponent,
+    OrdenIngresoPipe
   ],
   imports: [
     BrowserModule,
     AppRountingModule,
     ReactiveFormsModule,
+    ChartsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,
